@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Clean Blog - Start Bootstrap Theme</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet"
+        type="text/css" />
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+        rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="/css/styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- Navigation-->
+    <%- include("layouts/navbar") %>
+        <!-- Page Header-->
+        <header class="masthead" style="background-image: url('<%= detailPost.image %>')">
+            <div class="container position-relative px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="site-heading">
+                            <h1>Clean Blog</h1>
+                            <span class="subheading">A Blog Theme by Start Bootstrap</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Main Content-->
+        <div class=" px-4">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <!-- Post preview-->
+
+                    <div class="post-preview">
+                        <h2 class="post-title">
+                            <%= detailPost.title %>
+                        </h2>
+                        <p class="post-meta">
+                            Posted by
+                            <a href="#!">
+                                <%= detailPost.user.email %>
+                            </a>
+                            on <%= detailPost.createdAt %>
+                        </p>
+                        <p class="post-subtitle">
+                            <%= detailPost.content %>
+                        </p>
+                        <% if(detailPost.image.length !==0) {%>
+                            <%for(let i=0; i< detailPost.image.length; i++) {%>
+                                <img src="<%= detailPost.image[i] %>" class="w-100" alt="...">
+                                <% }%>
+                                    <% } else { %>
+                                        </br>
+                                        <% }%>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer-->
+        <div class="container">
+            <div class="my-3">
+                <h3 id="count">
+                    <%= totalComment %> Comments
+                </h3>
+                <div id="listComment" class=" card" style="min-height: 60vh; max-height: 60vh; overflow-y: scroll">
+
+                    <% for (const comment of comments) { %>
+                        <div id="comment<%=comment.id%>" class="border border-light-subtle p-3">
+                            <div class="d-flex">
+                                <img src="https://i.pravatar.cc?u=<%= comment.user.id %>" style="height: 50px" alt="">
+                                <div class="d-flex flex-column mx-2">
+                                    <span>
+                                        <%= comment.user.email %>
+                                    </span>
+                                    <span style="font-size: 10px">
+                                        <%= comment.createdAt %>
+                                    </span>
+                                </div>
+                                <% if(LoggedIn==comment.user.id) { %>
+                                    <div class="dropend">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+
+                                        </button>
+                                        <ul class="dropdown-menu">
+
+                                            <!-- Button trigger modal -->
+                                            <li><a id="fixcom" class="dropdown-item" data-bs-toggle="modal"
+                                                    data-bs-target="#exampleModal" value="<%= comment.id%>">Fix
+                                                    comment</a>
+                                            </li>
+
+                                            <li><a class="dropdown-item" id="delcom" value="<%= comment.id%>">Delete
+                                                    comment</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade w-300" id="exampleModal" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Content comment
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="changeForm">
+                                                        <div class="control-group">
+                                                            <div class="form-group floating-label-form-group controls">
+                                                                <textarea rows="5" class="form-control" id="content"
+                                                                    placeholder="Content" name="content"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary"
+                                                                data-bs-dismiss="modal">Save
+                                                                changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <% }%>
+                            </div>
+                            <div>
+                                <p class="my-1">
+                                    <%= comment.content %>
+                                </p>
+                            </div>
+
+                            <div class="divSpan">
+                                <% if (comment.likes.length===0) { %>
+                                    <i class="fa fa-heart text-danger"></i>
+                                    <span id="spanLike"></span>
+                                    <button id="like" value="<%= comment.id %>" type="button"
+                                        style="border: white; color: black !important;"> Like</button>
+                                    <% } else { %>
+                                        <div class="dropdown">
+                                            <form id="formLike">
+                                                <a id="peopleLike" name="<%= comment.id %>" href="#" role="submit"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fa fa-heart text-danger"></i>
+                                                </a>
+
+                                                <ul class="dropdown-menu" id="listPeople">
+                                                    <% for (const like of comment.likes) { %>
+                                                        <li>
+                                                            <%= like.person %>
+                                                        </li>
+                                                        <% } %>
+                                                </ul>
+                                            </form>
+                                        </div>
+                                        <span id="spanLike<%= comment.id%>">
+                                            <%= comment.likes.length %>
+                                        </span>
+                                        <button id="like" value="<%= comment.id %>" type="button"
+                                            style="border: white;">Like</button>
+
+
+                                        <% } %>
+
+
+                                            <a id="reply" name="<%= comment.user.email%>" class="mx-3" role="button" value="<%= comment.id%>">Reply</a>
+
+                                            <div id="listAllReply">
+                                                <% if(comment.replys.length==0) {%>
+                                                    <%} else {%>
+                                                        <% for (const reply of comment.replys) {%>
+                                                            <div id="listReply<%= reply.commentId %>">
+                                                                <div id="reply<%= reply.id%>"
+                                                                    class="border border-light-subtle mx-5 p-2">
+                                                                    <div class="d-flex">
+                                                                        <img src="https://i.pravatar.cc?u=<%=reply.userId%>"
+                                                                            style="height: 50px" alt="">
+                                                                        <div class="d-flex flex-column mx-2">
+                                                                            <span class="">
+                                                                                <%= reply.person%>
+                                                                            </span>
+                                                                            <span style="font-size: 10px">
+                                                                                <%= reply.createdAt%>
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div class="dropend">
+                                                                            <button
+                                                                                class="btn btn-secondary dropdown-toggle"
+                                                                                type="button" data-bs-toggle="dropdown"
+                                                                                aria-expanded="false">
+
+                                                                            </button>
+                                                                            <ul class="dropdown-menu">
+
+                                                                                <!-- Button trigger modal -->
+                                                                                <li><a id="fixReply"
+                                                                                        class="dropdown-item"
+                                                                                        data-bs-toggle="modal"
+                                                                                        data-bs-target="#exampleModal"
+                                                                                        value="<%= reply.id%>">Fix
+                                                                                        comment</a>
+                                                                                </li>
+
+                                                                                <li><a class="dropdown-item"
+                                                                                        id="delReply"
+                                                                                        value="<%= reply.id%>">Delete
+                                                                                        comment</a></li>
+                                                                            </ul>
+                                                                        </div>
+
+                                                                        <!-- Modal -->
+                                                                        <div class="modal fade w-300" id="exampleModal"
+                                                                            tabindex="-1"
+                                                                            aria-labelledby="exampleModalLabel"
+                                                                            aria-hidden="true">
+                                                                            <div class="modal-dialog modal-lg">
+                                                                                <div class="modal-content">
+                                                                                    <div class="modal-header">
+                                                                                        <h1 class="modal-title fs-5"
+                                                                                            id="example<%= reply.id%>">
+                                                                                            Content comment
+                                                                                        </h1>
+
+
+
+                                                                                        <button type="button"
+                                                                                            class="btn-close"
+                                                                                            data-bs-dismiss="modal"
+                                                                                            aria-label="Close"></button>
+                                                                                    </div>
+                                                                                    <div class="modal-body">
+
+                                                                                        <div class="control-group">
+                                                                                            <div
+                                                                                                class="form-group floating-label-form-group controls">
+                                                                                                <textarea rows="5"
+                                                                                                    class="form-control"
+                                                                                                    id="contentRep<%= reply.id%>"
+                                                                                                    placeholder="Content"
+                                                                                                    name="contentRep<%= reply.id%>"></textarea>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="modal-footer">
+                                                                                            <button type="button"
+                                                                                                class="btn btn-secondary"
+                                                                                                data-bs-dismiss="modal">Close</button>
+                                                                                            <button type="submit"
+                                                                                                class="btn btn-primary"
+                                                                                                data-bs-dismiss="modal">Save
+                                                                                                changes</button>
+                                                                                        </div>
+
+                                                                                    </div>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <div class="d-flex">
+                                                                        <p class="my-1">
+                                                                            <%= reply.content %>
+                                                                        </p>
+                                                                    </div>
+
+
+                                                                    <div class="divReplys">
+
+                                                                        <% if (reply.likeReplys.length===0) { %>
+                                                                            <i class="fa fa-heart text-danger"></i>
+                                                                            <span id="spanLike"></span>
+                                                                            <button id="buttonReplys"
+                                                                                value="<%= reply.id %>" type="button"
+                                                                                style="border: white; color: black !important;">
+                                                                                Like</button>
+                                                                            <% } else { %>
+                                                                                <div class="dropdown">
+                                                                                    <form id="formLike">
+                                                                                        <a id="peopleLike"
+                                                                                            name="<%= reply.id %>"
+                                                                                            href="#" role="submit"
+                                                                                            data-bs-toggle="dropdown"
+                                                                                            aria-expanded="false">
+                                                                                            <i
+                                                                                                class="fa fa-heart text-danger"></i>
+                                                                                        </a>
+
+                                                                                        <ul class="dropdown-menu"
+                                                                                            id="listPeople">
+                                                                                            <% for (const likeReply of
+                                                                                                reply.likeReplys) { %>
+                                                                                                <li>
+                                                                                                    <%= likeReply.person
+                                                                                                        %>
+                                                                                                </li>
+                                                                                                <% } %>
+                                                                                        </ul>
+                                                                                    </form>
+                                                                                </div>
+                                                                                <span id="spanLike<%= reply.id%>">
+                                                                                    <%= reply.likeReplys.length %>
+                                                                                </span>
+                                                                                <button id="buttonReplys"
+                                                                                    value="<%= reply.id %>"
+                                                                                    type="button"
+                                                                                    style="border: white;">Like</button>
+
+
+                                                                                <% } %>
+
+
+                                                                                  
+
+                                                                                    <a id="resReply" class="mx-3"
+                                                                                        role="button"
+                                                                                        value="<%= reply.commentId%>"
+                                                                                        name="<%= reply.person%>">Reply</a>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                            <%}%>
+                                                                <%}%>
+
+                                            </div>
+                                            <div id="divReply<%= comment.id%>">
+
+                                            </div>
+                            </div>
+                        </div>
+                        <% } %>
+                </div>
+
+            </div>
+            <form class="" id="formComment">
+                <input class="form-control border" placeholder="leave a comment here" name="comment"
+                    id="comment"></input>
+                <button type="submit" class="border my-2">Comment</button>
+
+
+            </form>
+        </div>
+
+        <footer class="border-top">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <ul class="list-inline text-center">
+                            <li class="list-inline-item">
+                                <a href="#!">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fas fa-circle fa-stack-2x"></i>
+                                        <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="#!">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fas fa-circle fa-stack-2x"></i>
+                                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="#!">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fas fa-circle fa-stack-2x"></i>
+                                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="small text-center text-muted fst-italic">Copyright &copy; Your Website 2023
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="/js/scripts.js"></script>
+        <!-- JQUERY -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <!-- socket -->
+        <script src="/socket.io/socket.io.js"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                const socket = io.connect();
+                const formComment = document.querySelector("#formComment")
+                const listComment = document.querySelector("#listComment")
+
+
+                // CREATE COMMENT
+                formComment.addEventListener("submit", function (e) {
+                    e.preventDefault()
+                    const comment = formComment.comment.value;
+                    socket.emit("dataFromClient", comment);
+                    $("#comment").val("")
+                    socket.on("dataFromServer", comment => {
+                        const content = ` <div id="comment${comment[0].id}" class="border border-light-subtle p-3">
+                        <div class="d-flex">
+                            <img src="https://i.pravatar.cc?u=${comment[0].user.id}" style="height: 50px" alt="">
+                            <div class="d-flex flex-column mx-2">
+                                <span>
+                                    ${comment[0].user.email}
+                                </span>
+                                <span style="font-size: 10px">
+                                    ${comment[0].createdAt}
+                                </span>
+                            </div>
+
+                            <div class="dropend">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+
+                                        </button>
+                                        <ul class="dropdown-menu">
+
+                                            <!-- Button trigger modal -->
+                                            <li><a id="fixcom${comment[0].id}" class="dropdown-item" data-bs-toggle="modal"
+                                                    data-bs-target="#exampleModal" value=${comment[0].id}>Fix
+                                                    comment</a>
+                                            </li>
+
+                                            <li><a class="dropdown-item" id="delcom${comment[0].id}" value=${comment[0].id}>Delete
+                                                    comment</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade w-300" id="exampleModal" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Content comment
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="changeForm">
+                                                        <div class="control-group">
+                                                            <div class="form-group floating-label-form-group controls">
+                                                                <textarea rows="5" class="form-control" id="content"
+                                                                    placeholder="Content" name="content"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary"
+                                                                data-bs-dismiss="modal">Save
+                                                                changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                        </div>
+                        <div>
+                            <p class="my-1">
+                                ${comment[0].content}
+                            </p>
+                        </div>
+                            
+                       
+                        <div class="divSpan">
+                                    <i class="fa fa-heart text-danger"></i>
+                                    <span id="spanLike"></span>
+                                    <button id="like" value=${comment[0].id} type="button"
+                                        style="border: white; color: black !important;"> Like</button>
+                                        <a id="reply" class="mx-3" role="button" value=${comment[0].id}>Reply</a>
+</div>
+                    </div>`
+                        const countComment = `<span>${comment[1].count} Comments</span>`
+                        $("#listComment").append(content);
+                        listComment.scrollTop = listComment.scrollHeight;
+                        document.querySelector("#count").innerHTML = countComment
+                        const delComment = document.querySelector(`#comment${comment[0].id}`)
+                        const delCom = document.querySelector(`#delcom${comment[0].id}`)
+                        delCom.addEventListener("click", function (event) {
+                            console.log(comment[0].id);
+                            socket.emit("delete", comment[0].id)
+                            socket.on("dataFromServer", data => {
+                                console.log(data);
+                                if (data == 1) 
+                                    $(delComment).innerHTML = ""                             
+                            })
+                        })
+                    })
+                })
+
+
+                /// FIX COMMENT
+                const liElements = document.querySelectorAll("#fixcom");
+                for (const liElement of liElements) {
+                    liElement.addEventListener("click", (event) => {
+                        // console.log(event.target.attributes.value.value);
+                        const idComment = event.target.attributes.value.value
+                        // console.log(event.view.parent.location.pathname);
+                        socket.emit("idComment", idComment)
+                        socket.on("fixComment", comment => {
+                            $("#content").val(comment.content)
+                            const content = ` <div class="border border-light-subtle p-3">
+                        <div class="d-flex">
+                            <img src="https://i.pravatar.cc?u=${comment.user.id}" style="height: 50px" alt="">
+                            <div class="d-flex flex-column mx-2">
+                                <span>
+                                    ${comment.user.email}
+                                </span>
+                                <span style="font-size: 10px">
+                                    ${comment.createdAt}
+                                </span>
+                            </div></div></div>`
+                            document.querySelector("#exampleModalLabel").innerHTML = content
+
+                            $("#changeForm").submit(function (event) {
+                                event.preventDefault();
+                                const content = $("#content").val()
+                                $.ajax({
+                                    url: "/comment/change",
+                                    type: "POST",
+                                    data: { content: content, idComment, postId: comment.postId },
+                                    success: (data, textStatus, jqXHR) => {
+                                        if (typeof data.redirect == 'string')
+                                            window.location = data.redirect
+                                    }
+                                })
+                            })
+                        })
+                    });
+                }
+
+
+                /// FIX REPLY
+                const fixReplys = document.querySelectorAll("#fixReply");
+                for (const fixReply of fixReplys) {
+                    fixReply.addEventListener("click", (event) => {
+                        event.preventDefault()
+                        const idReply = event.target.attributes.value.value
+                        socket.emit("idReply", idReply)
+                        socket.on("dataFromServer1", comment => {
+                            const contentRep = document.querySelector(`#contentRep${idReply}`)
+                            contentRep.innerHTML = comment.content
+                            const content = ` <div class="border border-light-subtle p-3">
+                        <div class="d-flex">
+                            <img src="https://i.pravatar.cc?u=${comment.userId}" style="height: 50px" alt="">
+                            <div class="d-flex flex-column mx-2">
+                                <span>
+                                    ${comment.person}
+                                </span>
+                                <span style="font-size: 10px">
+                                    ${comment.createdAt}
+                                </span>
+                            </div></div></div>`
+                            document.querySelector(`#example${idReply}`).innerHTML = content
+                            contentRep.addEventListener("change", function (event) {
+                                event.preventDefault()
+                                const newContent = event.target.value
+                                socket.emit("changeReply", { newContent: newContent, idReply: idReply })
+                                socket.on("dataFromServer2", data => {
+                                    contentRep.innerHTML = data.content
+                                })
+                            })
+                           
+                        })
+                    });
+                }
+
+
+
+                /// DELETE COMMENT
+                const delComs = document.querySelectorAll("#delcom")
+                for (const delCom of delComs) {
+                    delCom.addEventListener("click", function (event) {
+                        const idComment = event.target.attributes.value.value
+                        const delComment = document.querySelector(`#comment${idComment}`)
+                        socket.emit("delete", idComment)
+                        socket.on("dataFromServer", data => {
+                            if (data == 1) {
+                                delComment.innerHTML = ""
+                            }
+                        })
+                    })
+                }
+
+
+                /// DELETE REPLY
+                const delReplys = document.querySelectorAll("#delReply")
+                for (const delReply of delReplys) {
+                    delReply.addEventListener("click", function (event) {
+                        const idReply = event.target.attributes.value.value
+                        const delRep = document.querySelector(`#reply${idReply}`)
+                        socket.emit("deleteReply", idReply)
+                        socket.on("dataFromServer", data => {
+                            if (data == 1) {
+                                delRep.innerHTML = ""
+                            }
+                        })
+                    })
+                }
+
+
+                /// LIKE 
+                const likeButtons = document.querySelectorAll("#like")
+                for (const likeButton of likeButtons) {
+                    likeButton.addEventListener("click", async (event) => {
+                        const idComment = event.target.attributes.value.value;
+                        const spanLike = document.querySelector(`#spanLike${idComment}`)
+                        likeButton.classList.toggle('true');
+                        const like = likeButton.classList.value == "true" ? 1 : 0
+                        likeButton.classList.value == "true" ? likeButton.style.color = 'blue' : likeButton.style.color = 'black'
+                        socket.emit("like", [idComment, like])
+                        socket.on("dataFromServer", dataLike => {
+                            if (dataLike.count == 0) {
+                                spanLike.innerHTML = ""
+                            } else {
+                                spanLike.innerHTML = dataLike.count
+                            }
+
+                        })
+                    })
+                }
+
+                /// LIKE REPLY
+                const buttonReplys = document.querySelectorAll("#buttonReplys")
+                for (const buttonReply of buttonReplys) {
+                    buttonReply.addEventListener("click", async (event) => {
+                        const idReply = event.target.attributes.value.value;
+                        const spanReplys = document.querySelector(`#spanReplys${idReply}`)
+                        buttonReply.classList.toggle('true');
+                        const like = buttonReply.classList.value == "true" ? 1 : 0
+                        buttonReply.classList.value == "true" ? buttonReply.style.color = 'blue' : buttonReply.style.color = 'black'
+                        socket.emit("likeReply", [idReply, like])
+                        socket.on("dataFromServer", dataLike => {
+                            console.log(dataLike);
+                            if (dataLike.count == 0) {
+                                spanReplys.innerHTML = ""
+                            } else {
+                                spanReplys.innerHTML = dataLike.count
+                            }
+                        })
+                    })
+                }
+
+
+
+                // REPLY COMMENT
+                const replys = document.querySelectorAll("#reply")
+                for (const reply of replys) {
+                    reply.addEventListener("click", function (event) {
+                        const idComment = event.target.attributes.value.value
+                        const nameComment = event.target.attributes.name.value
+                        const divReply = document.querySelector(`#divReply${idComment}`)
+                        const content = `<form id="formReply">
+                            <input type="text" id="inputReply" name="reply" class="form-control my-2">
+                        <button class="btn btn-secondary btn-sm">Send</button>
+                        </form>
+                        `
+                        divReply.innerHTML = content
+                        $("#inputReply").val(nameComment)
+                        const formReply = document.querySelector("#formReply")
+                        formReply.scrollIntoView({
+                            block: 'end',
+                            inline: 'nearest'
+                        });
+                        formReply.addEventListener("submit", function (event) {
+                            event.preventDefault()
+                            const data = formReply.reply.value;
+                            $("#inputReply").val("")
+                            socket.emit("reply", { data, idComment })
+                            socket.on("dataFromServer", data => {
+                                const listReply = document.querySelector(`#listReply${idComment}`)
+                                const content = ` 
+                    <div id="listReply${data.createReply.commentId}" class="border border-light-subtle mx-5 p-2">
+                        <div class="d-flex">
+                            <img src="https://i.pravatar.cc?u=${data.createReply.userId}" style="height: 50px" alt="">
+                            <div class="d-flex flex-column mx-2">
+                                <span>
+                                    ${data.commentUser.user.email}
+                                </span>
+                                <span style="font-size: 10px">
+                                    ${data.createReply.createdAt}
+                                </span>
+                            </div>
+                            <div class="dropend">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+
+                                        </button>
+                                        <ul class="dropdown-menu">
+
+                                            <!-- Button trigger modal -->
+                                            <li><a id="" class="dropdown-item" data-bs-toggle="modal"
+                                                    data-bs-target="#exampleModal" value="">Fix
+                                                    comment</a>
+                                            </li>
+
+                                            <li><a class="dropdown-item" id="" value="">Delete
+                                                    comment</a></li>
+                                        </ul>
+                            </div>
+
+                                    <!-- Modal -->
+                            <div class="modal fade w-300" id="exampleModal" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Content comment
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                                    <form id="changeForm">
+                                            <div class="control-group">
+                                                <div class="form-group floating-label-form-group controls">
+                                                                <textarea rows="5" class="form-control" id="content"
+                                                                    placeholder="Content" name="content"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary"
+                                                                data-bs-dismiss="modal">Save
+                                                                changes</button>
+                                            </div>
+                                                    </form>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <p class="my-1">
+                                ${data.createReply.content}
+                            </p>
+                        </div>
+                        <div class="divSpan">
+                                    <i class="fa fa-heart text-danger"></i>
+                                    <span id="spanLike"></span>
+                                    <button id="like" value="" type="button"
+                                        style="border: white; color: black !important;"> Like</button>
+                                        <a id="reply" class="mx-3" role="button" value="">Reply</a>
+                        </div>
+                    </div>                    
+                    `
+                                listReply.innerHTML += content
+                            })
+                        })
+                    })
+                }
+
+
+                /// RESPONSE REPLY
+                const resReplys = document.querySelectorAll("#resReply")
+                for (const resReply of resReplys) {
+                    resReply.addEventListener("click", function (event) {
+                        const idComment = event.target.attributes.value.value
+                        const nameComment = event.target.attributes.name.value
+                        const content = `<form id="formReply">
+                            <input type="text" id="inputReply" name="reply" class="form-control my-2">
+                        <button class="btn btn-secondary btn-sm">Send</button>
+                        </form>
+                        `
+            
+                        const divReply = document.querySelector(`#divReply${idComment}`)
+                        divReply.innerHTML = content
+                        $("#inputReply").val(nameComment)
+                        const formReply = document.querySelector("#formReply")
+                        formReply.scrollIntoView({
+                            block: 'end',
+                            inline: 'nearest'
+                        }); formReply.addEventListener("submit", function (event) {
+                            event.preventDefault()
+                            const data = formReply.reply.value;
+                            $("#inputReply").val("")
+                            socket.emit("reply", { data, idComment })
+                            socket.on("dataFromServer", data => {
+                                const listReply = document.querySelector(`#listReply${idComment}`)
+                                const content = ` 
+                    <div id="listReply${data.createReply.commentId}" class="border border-light-subtle mx-5 p-2">
+                        <div class="d-flex">
+                            <img src="https://i.pravatar.cc?u=${data.createReply.userId}" style="height: 50px" alt="">
+                            <div class="d-flex flex-column mx-2">
+                                <span>
+                                    ${data.commentUser.user.email}
+                                </span>
+                                <span style="font-size: 10px">
+                                    ${data.createReply.createdAt}
+                                </span>
+                            </div>
+                            <div class="dropend">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+
+                                        </button>
+                                        <ul class="dropdown-menu">
+
+                                            <!-- Button trigger modal -->
+                                            <li><a id="" class="dropdown-item" data-bs-toggle="modal"
+                                                    data-bs-target="#exampleModal" value="">Fix
+                                                    comment</a>
+                                            </li>
+
+                                            <li><a class="dropdown-item" id="" value="">Delete
+                                                    comment</a></li>
+                                        </ul>
+                            </div>
+
+                                    <!-- Modal -->
+                            <div class="modal fade w-300" id="exampleModal" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Content comment
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                                    <form id="changeForm">
+                                            <div class="control-group">
+                                                <div class="form-group floating-label-form-group controls">
+                                                                <textarea rows="5" class="form-control" id="content"
+                                                                    placeholder="Content" name="content"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary"
+                                                                data-bs-dismiss="modal">Save
+                                                                changes</button>
+                                            </div>
+                                                    </form>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <p class="my-1">
+                                ${data.createReply.content}
+                            </p>
+                        </div>
+                        <div class="divSpan">
+                                    <i class="fa fa-heart text-danger"></i>
+                                    <span id="spanLike"></span>
+                                    <button id="like" value="" type="button"
+                                        style="border: white; color: black !important;"> Like</button>
+                                        <a id="reply" class="mx-3" role="button" value="">Reply</a>
+                        </div>
+                    </div>                    
+                    `
+                                listReply.innerHTML += content
+                            })
+                        })
+
+                    })
+                }
+
+
+
+
+            });
+        </script>
+</body>
+
+</html>

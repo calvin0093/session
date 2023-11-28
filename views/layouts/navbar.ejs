@@ -1,0 +1,252 @@
+<nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="/home">Start Bootstrap</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+            aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            Menu
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <div class="m-auto">
+                <form id="formFindPost" class="d-flex">
+                    <input class="form-control" list="recommendPost" id="inputFindPost"
+                        name="inputFindPost" placeholder="FIND POST">
+                    <datalist id="recommendPost">
+                    </datalist>
+                    <button id="buttonFindPost" type="submit" class="px-3 btn btn-secondary"
+                        data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left"
+                        data-bs-content="Left popover">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+            <ul class="navbar-nav ms-auto py-4 py-lg-0">
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="/home">Home</a></li>
+
+                <% if(LoggedIn){ %>
+                    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="/post">Create Post</a></li>
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <a class="nav-link px-lg-3 py-3 py-lg-3 text-white" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-regular fa-envelope fs-5"></i>
+                            </a>
+                            <ul id="ulDrop" class="dropdown-menu py-0">
+                                <li>
+                                    <form id="formFindPeople" class="d-flex">
+                                        <input class="form-control" list="fontstyle" id="inputFindPeople"
+                                            name="inputFindPeople" placeholder="Find people">
+                                        <datalist id="fontstyle">
+
+                                        </datalist>
+                                        <button id="buttonFind" type="submit" class="px-3 btn btn-secondary"
+                                            data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left"
+                                            data-bs-content="Left popover">
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="/profile">
+                        <%= user.email %>
+                    </a></li>
+                    <li class="nav-item"><a id="logout" class="nav-link px-lg-3 py-3 py-lg-4" href="/logout">Logout</a>
+                    </li>
+                    <% }%>
+                        <% if(!LoggedIn) { %>
+                            <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="/login">Login</a></li>
+                            <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!--CHAT-->
+<div id="formChat" class="formChat">
+    <div class="text-center d-flex justify-content-between">
+        <h3 style="font-size: medium" id="userChat">Name</h3>
+        <button id="btn-close" type="button" class="btn-close" data-bs-dismiss="formChat" aria-label="Close"></button>
+    </div>
+    <div id="second">
+        <div id="listChat">
+
+        </div>
+
+    </div>
+    <form id="form">
+        <input type="text" class="container" id="inputChat" name="inputChat">
+        <div class="text-center">
+            <button type="submit" class="btn btn-secondary btn-sm px-2">SEND</button>
+        </div>
+    </form>
+</div>
+
+<!--JQUERY-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<!-- socket -->
+<script src="/socket.io/socket.io.js"></script>
+<!---AXIOS-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+    $(document).ready(async function () {
+        const socket = io.connect()
+        const form = document.querySelector("#form")
+        const ulDrop = document.querySelector("#ulDrop")
+        await axios.get(
+            "/getuser"
+        ).then((result) => {
+            localStorage.setItem("USER", result.data)
+        }).catch((err) => {
+            console.log(err);
+        });
+        await axios.get("/api/conversation").then((result) => {
+            const contentDrop = result.data.map(mess => {
+                if (mess.user1 == localStorage.getItem("USER"))
+                    return `<li id="liDrop" value="${mess.user2}"><a class="dropdown-item border-top" href="#">${mess.user2}</a></li>`
+                else {
+                    return `<li id="liDrop"  value="${mess.user1}"><a class="dropdown-item border-top" href="#">${mess.user1}</a></li>`
+                }
+            }
+            )
+            $(ulDrop).append(contentDrop)
+            const liDrops = document.querySelectorAll("#liDrop")
+            const formChat = document.querySelector("#formChat")
+            const listChat = document.querySelector("#listChat")
+            for (const liDrop of liDrops) {
+                $(liDrop).click(function (event) {
+                    const userGet = event.target.innerHTML
+                    const userSend = localStorage.getItem("USER")
+                    document.querySelector("#userChat").innerHTML = userGet
+                    document.querySelector("#formChat").style.opacity = "1"
+                    document.querySelector("#btn-close").addEventListener("click", function (event) {
+                        document.querySelector("#formChat").style.opacity = "0"
+                    })
+                    socket.emit("join", { userSend, userGet })
+                    socket.on("getAllMess", data => {
+                        const mapChat = data.map(mess => {
+                            if (mess?.user?.email == userSend) {
+                                return `<div class="chat darker" id="me">
+                                                    <img src="https://i.pravatar.cc?u=${mess?.user?.id}" alt="...">
+                                                    <p id="john">${mess.content}</p>
+                                                    <span id="time" class="time-right">${mess.createdAt.slice(11, 19)}</span>
+                                                </div>`
+                            } else {
+                                return `<div class="chat" id="people">
+                                                    <img src="https://i.pravatar.cc?u=${mess?.user?.id}" alt="...">
+                                                    <p id="john">${mess.content}</p>
+                                                    <span id="time" class="time-right">${mess.createdAt.slice(11, 19)}</span>
+                                                </div>`
+                            }
+                        }
+                        )
+                        $(listChat).append(mapChat)
+                        listChat.scrollTop = listChat.scrollHeight
+                    })
+                })
+            }
+
+
+        }).catch((err) => {
+            console.log(err);
+        })
+        const formChat = document.querySelector("#formChat")
+        form.addEventListener("submit", function (event) {
+            event.preventDefault()
+            const ipChat = form.inputChat.value
+            $("#inputChat").val("")
+            socket.emit("message", ipChat)
+            socket.on("repmess", data => {
+                const content = `<div class="chat darker" id="john">
+    <img src="https://i.pravatar.cc?u=${data.userId}" alt="...">
+    <p id="john">${data.content}</p>
+    <span id="time" class="time-right">${data.createdAt.slice(11, 19)}</span>
+  </div>`;
+                listChat.innerHTML += content
+                listChat.scrollTop = listChat.scrollHeight;
+            })
+        })
+
+
+        const formFindPeople = document.querySelector("#formFindPeople")
+        const listRecommend = document.querySelector("#fontstyle")
+        const inputFindPeople = document.querySelector("#inputFindPeople");
+        const buttonFind = document.querySelector("#buttonFind")
+        $(inputFindPeople).on("input", function (event) {
+            const value = $(inputFindPeople).val();
+            axios.post("/api/getpeoplemess", { data: value }).then((result) => {
+                const maplist = result.data.map(user => {
+                    return `
+                <option value="${user}">${user}</option>
+                `
+                })
+                listRecommend.innerHTML = maplist
+            }).catch((err) => {
+                console.log(err);
+            });
+        })
+
+        formFindPeople.addEventListener("submit", function (event) {
+            event.preventDefault()
+            const userGet = formFindPeople.inputFindPeople.value
+            $(inputFindPeople).val("")
+            const userSend = localStorage.getItem("USER")
+            document.querySelector("#userChat").innerHTML = userGet
+            document.querySelector("#formChat").style.opacity = "1"
+            document.querySelector("#btn-close").addEventListener("click", function (event) {
+                document.querySelector("#formChat").style.opacity = "0"
+            })
+
+            socket.emit("join", { userSend, userGet })
+            socket.on("getAllMess", data => {
+                const mapChat = data.map(mess => {
+                    if (mess?.user?.email == userSend) {
+                        return `<div class="chat darker" id="me">
+                                                    <img src="https://i.pravatar.cc?u=${mess?.user?.id}" alt="...">
+                                                    <p id="john">${mess.content}</p>
+                                                    <span id="time" class="time-right">${mess.createdAt.slice(11, 19)}</span>
+                                                </div>`
+                    } else {
+                        return `<div class="chat" id="people">
+                                                    <img src="https://i.pravatar.cc?u=${mess?.user?.id}" alt="...">
+                                                    <p id="john">${mess.content}</p>
+                                                    <span id="time" class="time-right">${mess.createdAt.slice(11, 19)}</span>
+                                                </div>`
+                    }
+                }
+                )
+                $(listChat).append(mapChat)
+                listChat.scrollTop = listChat.scrollHeight
+            })
+        })
+
+        const inputFindPost = document.querySelector("#inputFindPost")
+        const recommendPost = document.querySelector("#recommendPost")
+        $(inputFindPost).on("input", function(event){
+            const value = $(inputFindPost).val()
+            console.log(value);
+            axios.post("/api/recommendpost", { data: value }).then((result) => {
+                console.log(result.data);
+                const maplist = result.data.map(post => {
+                    return `
+                <option id="selectPost" value="${post.title}" href="/detailpost/${post.id}"></option>
+                `
+                })
+                recommendPost.innerHTML = maplist
+            }).catch((err) => {
+                console.log(err);
+            });
+            
+        })
+        const formFindPost = document.querySelector("#formFindPost")
+        formFindPost.addEventListener("submit", function (event) {
+            event.preventDefault()
+            const post = formFindPost.inputFindPost.value
+            $(inputFindPost).val("")
+            const hrefPost = $("#selectPost")[0].attributes.href.value
+            window.location.href = `${hrefPost}`
+        })
+    })
+</script>
